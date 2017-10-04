@@ -1,0 +1,3 @@
+/* the configured options and settings for Chip8 */
+#define Chip8_VERSION_MAJOR @Chip8_VERSION_MAJOR@
+#define Chip8_VERSION_MINOR @Chip8_VERSION_MINOR@
