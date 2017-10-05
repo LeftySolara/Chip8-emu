@@ -1,3 +1,6 @@
+#define MEMORY_SIZE 4096
+#define STACK_SIZE 16
+
 struct Chip8 {
 
     /* CPU registers:
@@ -19,7 +22,7 @@ struct Chip8 {
        (0x000 to 0x1FF) are used by the interpreter and therefore
        should not be accessed by programs.
      */
-    unsigned char memory[4096];
+    unsigned char memory[MEMORY_SIZE];
 
 
     /* Timer registers:
@@ -30,8 +33,17 @@ struct Chip8 {
     unsigned char sound_timer;
 
 
+    /* Display */
+    unsigned char gfx[64 * 32];
+
+
     /* Other "pseudo registers" */
     unsigned short pc; /* program counter */
     unsigned char sp;  /* stack pointer */
-    unsigned short stack[16];
+    unsigned short stack[STACK_SIZE];
+    unsigned short opcode;
 };
+
+
+struct Chip8 *chip8_init();
+void chip8_free(struct Chip8 *chip8);

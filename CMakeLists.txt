@@ -1,6 +1,9 @@
 cmake_minimum_required (VERSION 3.5)
 project(Chip8)
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -O3")
+
 set (Chip8_VERSION_MAJOR 0)
 set (Chip8_VERSION_MINOR 1)
 
@@ -13,4 +16,5 @@ configure_file (
 # add the binary tree to the search path for include files so we'll find Chip8Config.h
 include_directories("${PROJECT_BINARY_DIR}")
 
-add_executable(Chip8 src/main.c)
+file(GLOB_RECURSE SOURCE_FILES "src/*.c")
+add_executable(chip8 ${SOURCE_FILES})
