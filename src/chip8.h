@@ -28,6 +28,8 @@ struct Chip8 {
     /* Timer registers:
 
        When these are non-zero, they should count down at a rate of 60Hz.
+       As long as the sound timer's value is greater than zero, the Chip-8
+       buzzer will sound.
      */
     unsigned char delay_timer;
     unsigned char sound_timer;
@@ -47,3 +49,5 @@ struct Chip8 {
 
 struct Chip8 *chip8_init();
 void chip8_free(struct Chip8 *chip8);
+
+void chip8_load_prog(struct Chip8 *chip8, const char *prog);

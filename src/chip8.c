@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 unsigned char chip8_fontset[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, /* 0 */
@@ -48,4 +49,17 @@ struct Chip8 *chip8_init()
 void chip8_free(struct Chip8 *chip8)
 {
     free(chip8);
+}
+
+/* Load the program into memory */
+void chip8_load_prog(struct Chip8 *chip8, const char *prog)
+{
+    int buffer_size = MEMORY_SIZE - 512;
+    unsigned char buffer[buffer_size];
+
+    FILE *fp = fopen(prog, "rb");
+    fread(buffer, sizeof(unsigned char), buffer_size, fp);
+
+    for (int i = 0; i < buffer_size; ++i)
+        chip8->memory[i + 512] = buffer[i];
 }
