@@ -63,3 +63,20 @@ void chip8_load_prog(struct Chip8 *chip8, const char *prog)
     for (int i = 0; i < buffer_size; ++i)
         chip8->memory[i + 512] = buffer[i];
 }
+
+void chip8_cycle(struct Chip8 *chip8)
+{
+    /* Find the current opcode and execute the instruction.
+
+       List of opcodes (more will be listed as they are implemented):
+       6XNN: Sets the value of register VX to NN
+     */
+    chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
+
+    switch (chip8->opcode & 0xF000) {
+    case 0x6000:
+        chip8->V[(chip8->opcode & 0x0F00) >> 8] = chip8->opcode & 0x00FF;
+        chip8->pc += 2;
+        break;
+    }
+}
