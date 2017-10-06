@@ -2,6 +2,7 @@
 #include "chip8.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 int main (int argc, char **argv)
 {
@@ -13,6 +14,7 @@ int main (int argc, char **argv)
         exit(1);
     }
 
+    srand(time(NULL));
     const char *prog = argv[1];
     struct Chip8 *chip8 = chip8_init();
     chip8_load_prog(chip8, prog);

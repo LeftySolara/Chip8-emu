@@ -89,7 +89,10 @@ void chip8_cycle(struct Chip8 *chip8)
        8XY6: Sets VX to VX SHR 1
        8XY7: Sets VX = VY - VX with VF = NOT borrow
        8XYE: Sets VX = SHL 1
+       9XY0: Skips the next instruction if VX is not equal to VY
        ANNN: Sets register I to NNN
+       BNNN: Jumps to address NNN + V0
+       CXNN: Sets VX to the result of a bitwise AND on a random number and NN
      */
     chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
 
@@ -183,8 +186,21 @@ void chip8_cycle(struct Chip8 *chip8)
             break;
         }
         chip8->pc += 2;
+    case 0x9000: /* 9XY0 */
+        if (VX != VY)
+            chip8->pc += 4;
+        else
+            chip8->pc += 2;
+        break;
     case 0xA000: /* ANNN */
         chip8->I = (chip8->opcode & 0x0FFF);
+        chip8->pc += 2;
+        break;
+    case 0xB000: /* BNNN */
+        chip8->pc = chip8->V[0] + (chip8->opcode & 0x0FFF);
+        break;
+    case 0xC000: /* CXNN */
+        VX = rand() & (chip8->opcode & 0x00FF);
         chip8->pc += 2;
         break;
     default:
