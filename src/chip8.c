@@ -83,6 +83,12 @@ void chip8_cycle(struct Chip8 *chip8)
        8XY0: Sets VX to the vaule of VY
        8XY1: Sets VX to VX OR VY
        8XY2: Sets VX to VX AND VY
+       8XY3: Sets VX to VX XOR VY
+       8XY4: Sets VX to VX + VY with VF = carry
+       8XY5: Sets Vx to VX - VY with VF = NOT borrow
+       8XY6: Sets VX to VX SHR 1
+       8XY7: Sets VX = VY - VX with VF = NOT borrow
+       8XYE: Sets VX = SHL 1
        ANNN: Sets register I to NNN
      */
     chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
@@ -145,17 +151,38 @@ void chip8_cycle(struct Chip8 *chip8)
         switch (chip8->opcode & 0x000F) {
         case 0x0000: /* 8XY0 */
             VX = VY;
-            chip8->pc += 2;
             break;
         case 0x0001: /* 8XY1 */
             VX = VX | VY;
-            chip8->pc += 2;
             break;
         case 0x0002: /* 8XY2 */
             VX = VX & VY;
-            chip8->pc += 2;
+            break;
+        case 0x0003: /* 8XY3 */
+            VX = VX ^ VY;
+            break;
+        case 0x0004: /* 8XY4 */
+            chip8->V[15] = (VX + VY > 255) ? 1 : 0;
+            VX += VY;
+            break;
+        case 0x0005: /* 8XY5 */
+            chip8->V[15] = (VX > VY) ? 1 : 0;
+            VX -= VY;
+            break;
+        case 0x0006: /* 8XY6 */
+            chip8->V[15] = ((VX & 0x000F) == 1) ? 1 : 0;
+            VX = VX >> 1;
+            break;
+        case 0x0007: /* 8XY7 */
+            chip8->V[15] = (VY > VX) ? 1 : 0;
+            VX = VY - VX;
+            break;
+        case 0x000E: /* 8XYE */
+            chip8->V[15] = ((VX & 0xF000) == 1) ? 1 : 0;
+            VX = VX << 1;
             break;
         }
+        chip8->pc += 2;
     case 0xA000: /* ANNN */
         chip8->I = (chip8->opcode & 0x0FFF);
         chip8->pc += 2;
