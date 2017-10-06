@@ -3,6 +3,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#define VX chip8->V[(chip8->opcode & 0x0F00) >> 8]
+#define VY chip8->V[(chip8->opcode & 0x00F0) >> 8]
+
 unsigned char chip8_fontset[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, /* 0 */
     0x20, 0x60, 0x20, 0x20, 0x70, /* 1 */
@@ -76,6 +79,10 @@ void chip8_cycle(struct Chip8 *chip8)
        4XNN: Skips the next instruction if VX is not equal to NN
        5XY0: Skips the next instruction if VX equals VY
        6XNN: Sets the value of register VX to NN
+       7XNN: Adds NN to VX (carry flag not changed)
+       8XY0: Sets VX to the vaule of VY
+       8XY1: Sets VX to VX OR VY
+       8XY2: Sets VX to VX AND VY
        ANNN: Sets register I to NNN
      */
     chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
@@ -109,28 +116,46 @@ void chip8_cycle(struct Chip8 *chip8)
         }
         break;
     case 0x3000: /* 3XNN */
-        if (chip8->V[(chip8->opcode & 0x0F00) >> 8] == (chip8->opcode & 0x00FF))
+        if (VX == (chip8->opcode & 0x00FF))
             chip8->pc += 4;
         else
             chip8->pc += 2;
         break;
     case 0x400: /* 4XNN */
-        if (chip8->V[(chip8->opcode & 0x0F00) >> 8] != (chip8->opcode & 0x00FF))
+        if (VX != (chip8->opcode & 0x00FF))
             chip8->pc += 4;
         else
             chip8->pc += 2;
         break;
     case 0x5000: /* 5XY0 */
-        if (chip8->V[(chip8->opcode & 0x0F00) >> 8]
-            == (chip8->V[(chip8->opcode & 0x00F0) >> 8]))
+        if (VX == VY)
             chip8->pc += 4;
         else
             chip8->pc += 2;
         break;
     case 0x6000: /* 6XNN */
-        chip8->V[(chip8->opcode & 0x0F00) >> 8] = chip8->opcode & 0x00FF;
+        VX = chip8->opcode & 0x00FF;
         chip8->pc += 2;
         break;
+    case 0x7000: /* 7XNN */
+        VX += (chip8->opcode & 0x00FF);
+        chip8->pc += 2;
+        break;
+    case 0x8000:
+        switch (chip8->opcode & 0x000F) {
+        case 0x0000: /* 8XY0 */
+            VX = VY;
+            chip8->pc += 2;
+            break;
+        case 0x0001: /* 8XY1 */
+            VX = VX | VY;
+            chip8->pc += 2;
+            break;
+        case 0x0002: /* 8XY2 */
+            VX = VX & VY;
+            chip8->pc += 2;
+            break;
+        }
     case 0xA000: /* ANNN */
         chip8->I = (chip8->opcode & 0x0FFF);
         chip8->pc += 2;
