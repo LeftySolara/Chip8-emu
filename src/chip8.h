@@ -41,7 +41,7 @@ struct Chip8 {
 
     /* Other "pseudo registers" */
     unsigned short pc; /* program counter */
-    unsigned char sp;  /* stack pointer */
+    unsigned short sp;  /* stack pointer */
     unsigned short stack[STACK_SIZE];
     unsigned short opcode;
 };

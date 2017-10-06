@@ -69,14 +69,52 @@ void chip8_cycle(struct Chip8 *chip8)
     /* Find the current opcode and execute the instruction.
 
        List of opcodes (more will be listed as they are implemented):
+       00EE: Returns from a subroutine
+       1NNN: Jumps to address NNN
+       2NNN: Calls subreoutine at address NNN
        6XNN: Sets the value of register VX to NN
+       ANNN: Sets register I to NNN
      */
     chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
 
     switch (chip8->opcode & 0xF000) {
-    case 0x6000:
+    case 0x0000:
+        switch (chip8->opcode & 0x000F) {
+        case 0x0000: /* 00E0 */
+            /* Clear the screen */
+            break;
+        case 0x000E: /* 00EE */
+            if (chip8->sp == 0) {
+                printf("Invalid return from subroutine\n");
+                exit(3);
+            }
+            else
+                chip8->pc = chip8->stack[chip8->sp--];
+            break;
+        }
+    case 0x1000: /* 1NNN */
+        chip8->pc = chip8->opcode & 0x0FFF;
+        break;
+    case 0x2000: /* 2NNN */
+        if (chip8->sp >= STACK_SIZE) {
+            printf("Stack size exceeded\n");
+            exit(2);
+        }
+        else {
+            chip8->stack[chip8->sp++] = chip8->pc;
+            chip8->pc = (chip8->opcode & 0x0FFF);
+        }
+        break;
+    case 0x6000: /* 6XNN */
         chip8->V[(chip8->opcode & 0x0F00) >> 8] = chip8->opcode & 0x00FF;
         chip8->pc += 2;
         break;
+    case 0xA000: /* ANNN */
+        chip8->I = (chip8->opcode & 0x0FFF);
+        chip8->pc += 2;
+        break;
+    default:
+        printf("Unknown opcode: 0x%X\n", chip8->opcode);
+        chip8->pc += 2;
     }
 }
