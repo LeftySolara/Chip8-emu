@@ -1,3 +1,6 @@
+#ifndef CHIP8_H
+#define CHIP8_H
+
 #define MEMORY_SIZE 4096
 #define STACK_SIZE 16
 
@@ -52,3 +55,5 @@ void chip8_free(struct Chip8 *chip8);
 
 void chip8_load_prog(struct Chip8 *chip8, const char *prog);
 void chip8_cycle(struct Chip8 *chip8);
+
+#endif
