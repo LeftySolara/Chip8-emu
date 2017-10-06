@@ -72,6 +72,9 @@ void chip8_cycle(struct Chip8 *chip8)
        00EE: Returns from a subroutine
        1NNN: Jumps to address NNN
        2NNN: Calls subreoutine at address NNN
+       3XNN: Skips the next instruction if VX equals NN
+       4XNN: Skips the next instruction if VX is not equal to NN
+       5XY0: Skips the next instruction if VX equals VY
        6XNN: Sets the value of register VX to NN
        ANNN: Sets register I to NNN
      */
@@ -104,6 +107,25 @@ void chip8_cycle(struct Chip8 *chip8)
             chip8->stack[chip8->sp++] = chip8->pc;
             chip8->pc = (chip8->opcode & 0x0FFF);
         }
+        break;
+    case 0x3000: /* 3XNN */
+        if (chip8->V[(chip8->opcode & 0x0F00) >> 8] == (chip8->opcode & 0x00FF))
+            chip8->pc += 4;
+        else
+            chip8->pc += 2;
+        break;
+    case 0x400: /* 4XNN */
+        if (chip8->V[(chip8->opcode & 0x0F00) >> 8] != (chip8->opcode & 0x00FF))
+            chip8->pc += 4;
+        else
+            chip8->pc += 2;
+        break;
+    case 0x5000: /* 5XY0 */
+        if (chip8->V[(chip8->opcode & 0x0F00) >> 8]
+            == (chip8->V[(chip8->opcode & 0x00F0) >> 8]))
+            chip8->pc += 4;
+        else
+            chip8->pc += 2;
         break;
     case 0x6000: /* 6XNN */
         chip8->V[(chip8->opcode & 0x0F00) >> 8] = chip8->opcode & 0x00FF;
