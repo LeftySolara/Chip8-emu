@@ -104,7 +104,7 @@ void chip8_cycle(struct Chip8 *chip8)
     case 0x0000:
         switch (chip8->opcode & 0x000F) {
         case 0x0000: /* 00E0 */
-            /* Clear the screen */
+            memset(chip8->gfx, 0, 64 * 32);
             break;
         case 0x000E: /* 00EE */
             if (chip8->sp == 0) {
