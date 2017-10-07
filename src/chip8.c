@@ -78,7 +78,7 @@ void chip8_cycle(struct Chip8 *chip8)
 
     /* Find the current opcode and execute the instruction.
 
-       List of opcodes (more will be listed as they are implemented):
+       List of opcodes:
        0NNN: Calls program at address NNN. Not necessary for most ROMs
        00E0: Clears the screen
        00EE: Returns from a subroutine
@@ -106,9 +106,11 @@ void chip8_cycle(struct Chip8 *chip8)
        EX9E: Skips the next instruction if the key stored in VX is pressed
        EXA1: Skips the next instruction if the key stored in VX is not pressed
        FX07: Sets VX to the value of the delay timer
+       FX0A: A key press is awaited, and then stored in VX (blocking operation)
        FX15: Sets the delay timer to VX
        FX18: Sets the sound timer to VX
        FX1E: Adds VX to I
+       FX29: Sets I to the location of the sprite for the character in VX
        FX33: Stores the BCD of VX starting at memory location I
        FX55: Stores V0 to VX (including VX) in memory starting at address I
        FX65: Fills V0 to VX (including VX) with values from memory starting at address I
@@ -254,6 +256,10 @@ void chip8_cycle(struct Chip8 *chip8)
             VX = chip8->delay_timer;
             chip8->pc +=2;
             break;
+        case 0x000A: /* FX0A */
+            /* Will be done with SDL */
+            chip8->pc += 2;
+            break;
         case 0x0015: /* FX15 */
             chip8->delay_timer = VX;
             chip8->pc += 2;
@@ -264,6 +270,10 @@ void chip8_cycle(struct Chip8 *chip8)
             break;
         case 0x001E: /* FX1E */
             chip8->I += VX;
+            chip8->pc += 2;
+            break;
+        case 0x0029: /* FX29 */
+            chip8->I = chip8->memory[VX * 5];
             chip8->pc += 2;
             break;
         case 0x0033: /* FX33 */
