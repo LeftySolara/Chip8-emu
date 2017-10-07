@@ -99,6 +99,8 @@ void chip8_cycle(struct Chip8 *chip8)
        FX15: Sets the delay timer to VX
        FX18: Sets the sound timer to VX
        FX1E: Adds VX to I
+       FX55: Stores V0 to VX (including VX) in memory starting at address I
+       FX65: Fills V0 to VX (including VX) with values from memory starting at address I
      */
     chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
 
@@ -227,8 +229,17 @@ void chip8_cycle(struct Chip8 *chip8)
             chip8->I += VX;
             chip8->pc += 2;
             break;
+        case 0x0055: /* FX55 */
+            for (int i = 0; i <= (chip8->opcode & 0x0F00); ++i)
+                chip8->memory[chip8->I++] = chip8->V[i];
+            chip8->pc += 2;
+            break;
+        case 0x0065: /* FX65 */
+            for (int i = 0; i <= (chip8->opcode & 0x0F00); ++i)
+                chip8->V[i] = chip8->memory[chip8->I++];
+            chip8->pc += 2;
+            break;
         }
-
     default:
         printf("Unknown opcode: 0x%X\n", chip8->opcode);
         chip8->pc += 2;
