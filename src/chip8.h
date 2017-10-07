@@ -41,6 +41,9 @@ struct Chip8 {
     /* Display */
     unsigned char gfx[64][32];
 
+    /* Keypad */
+    unsigned char key[16];
+
 
     /* Other "pseudo registers" */
     unsigned short pc; /* program counter */

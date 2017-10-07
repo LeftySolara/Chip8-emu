@@ -30,9 +30,10 @@ struct Chip8 *chip8_init()
 {
     struct Chip8 *chip8 = malloc(sizeof(*chip8));
 
-    /* Clear the memory, display, and stack */
+    /* Clear the memory, display, key press state, and stack */
     memset(chip8->memory, 0, MEMORY_SIZE);
     memset(chip8->stack, 0, STACK_SIZE * 2);
+    memset(chip8->key, 0, 16);
     for (int i = 0; i < 63; ++i)
         memset(chip8->gfx[i], 0, 32);
 
@@ -71,6 +72,10 @@ void chip8_load_prog(struct Chip8 *chip8, const char *prog)
 
 void chip8_cycle(struct Chip8 *chip8)
 {
+    /* Check key input state. This will be done with SDL */
+    ;;
+
+
     /* Find the current opcode and execute the instruction.
 
        List of opcodes (more will be listed as they are implemented):
@@ -97,6 +102,8 @@ void chip8_cycle(struct Chip8 *chip8)
        BNNN: Jumps to address NNN + V0
        CXNN: Sets VX to the result of a bitwise AND on a random number and NN
        DXYN: Draws an N-byte sprites starting at memory location I at (VX, VY), set VF = collision
+       EX9E: Skips the next instruction if the key stored in VX is pressed
+       EXA1: Skips the next instruction if the key stored in VX is not pressed
        FX07: Sets VX to the value of the delay timer
        FX15: Sets the delay timer to VX
        FX18: Sets the sound timer to VX
@@ -221,6 +228,21 @@ void chip8_cycle(struct Chip8 *chip8)
         }
         chip8->pc += 2;
         break;
+    case 0xE000:
+        switch (chip8->opcode & 0x000F) {
+        case 0x000E: /* EX9E */
+            if (chip8->key[VX] == 1)
+                chip8->pc += 4;
+            else
+                chip8->pc += 2;
+            break;
+        case 0x0001: /* EXA1 */
+            if (chip8->key[VX] == 0)
+                chip8->pc += 4;
+            else
+                chip8->pc += 2;
+            break;
+        }
     case 0xF000:
         switch (chip8->opcode & 0x00FF) {
         case 0x0007: /* FX07 */
