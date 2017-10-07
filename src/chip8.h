@@ -59,4 +59,5 @@ void chip8_free(struct Chip8 *chip8);
 void chip8_load_prog(struct Chip8 *chip8, const char *prog);
 void chip8_cycle(struct Chip8 *chip8);
 
+unsigned char hex_to_bin(unsigned char n);
 #endif

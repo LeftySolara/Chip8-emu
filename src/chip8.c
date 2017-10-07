@@ -79,6 +79,7 @@ void chip8_cycle(struct Chip8 *chip8)
     /* Find the current opcode and execute the instruction.
 
        List of opcodes (more will be listed as they are implemented):
+       0NNN: Calls program at address NNN. Not necessary for most ROMs
        00E0: Clears the screen
        00EE: Returns from a subroutine
        1NNN: Jumps to address NNN
@@ -108,6 +109,7 @@ void chip8_cycle(struct Chip8 *chip8)
        FX15: Sets the delay timer to VX
        FX18: Sets the sound timer to VX
        FX1E: Adds VX to I
+       FX33: Stores the BCD of VX starting at memory location I
        FX55: Stores V0 to VX (including VX) in memory starting at address I
        FX65: Fills V0 to VX (including VX) with values from memory starting at address I
      */
@@ -127,6 +129,9 @@ void chip8_cycle(struct Chip8 *chip8)
             else
                 chip8->pc = chip8->stack[chip8->sp--];
             break;
+        default: /* 0NNN */
+            chip8->stack[chip8->sp++] = chip8->pc;
+            chip8->pc = (chip8->opcode & 0x0FFF);
         }
     case 0x1000: /* 1NNN */
         chip8->pc = chip8->opcode & 0x0FFF;
@@ -261,6 +266,12 @@ void chip8_cycle(struct Chip8 *chip8)
             chip8->I += VX;
             chip8->pc += 2;
             break;
+        case 0x0033: /* FX33 */
+            chip8->memory[chip8->I] = (hex_to_bin(VX) / 100) % 10;
+            chip8->memory[chip8->I + 1] = (hex_to_bin(VX) / 10) % 10;
+            chip8->memory[chip8->I + 2] = hex_to_bin(VX) % 10;
+            chip8->pc += 2;
+            break;
         case 0x0055: /* FX55 */
             for (int i = 0; i <= (chip8->opcode & 0x0F00); ++i)
                 chip8->memory[chip8->I++] = chip8->V[i];
@@ -276,4 +287,9 @@ void chip8_cycle(struct Chip8 *chip8)
         printf("Unknown opcode: 0x%X\n", chip8->opcode);
         chip8->pc += 2;
     }
+}
+
+unsigned char hex_to_bin(unsigned char n)
+{
+    return (((n & 0xF0) >> 4) * 16) + (n & 0x0F);
 }
