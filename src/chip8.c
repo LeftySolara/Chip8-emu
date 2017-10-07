@@ -31,8 +31,9 @@ struct Chip8 *chip8_init()
 
     /* Clear the memory, display, and stack */
     memset(chip8->memory, 0, MEMORY_SIZE);
-    memset(chip8->gfx, 0, 64 * 32);
     memset(chip8->stack, 0, STACK_SIZE * 2);
+    for (int i = 0; i < 63; ++i)
+        memset(chip8->gfx[i], 0, 32);
 
     chip8->pc = 0x200;
     chip8->sp = 0;
@@ -72,6 +73,7 @@ void chip8_cycle(struct Chip8 *chip8)
     /* Find the current opcode and execute the instruction.
 
        List of opcodes (more will be listed as they are implemented):
+       00E0: Clears the screen
        00EE: Returns from a subroutine
        1NNN: Jumps to address NNN
        2NNN: Calls subreoutine at address NNN

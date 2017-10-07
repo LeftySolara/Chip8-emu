@@ -39,7 +39,7 @@ struct Chip8 {
 
 
     /* Display */
-    unsigned char gfx[64 * 32];
+    unsigned char gfx[64][32];
 
 
     /* Other "pseudo registers" */
