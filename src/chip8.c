@@ -5,6 +5,7 @@
 
 #define VX chip8->V[(chip8->opcode & 0x0F00) >> 8]
 #define VY chip8->V[(chip8->opcode & 0x00F0) >> 8]
+#define CURRENT_PIXEL chip8->gfx[VX % 64][VY % 32]
 
 unsigned char chip8_fontset[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, /* 0 */
@@ -95,6 +96,7 @@ void chip8_cycle(struct Chip8 *chip8)
        ANNN: Sets register I to NNN
        BNNN: Jumps to address NNN + V0
        CXNN: Sets VX to the result of a bitwise AND on a random number and NN
+       DXYN: Draws an N-byte sprites starting at memory location I at (VX, VY), set VF = collision
        FX07: Sets VX to the value of the delay timer
        FX15: Sets the delay timer to VX
        FX18: Sets the sound timer to VX
@@ -209,6 +211,14 @@ void chip8_cycle(struct Chip8 *chip8)
         break;
     case 0xC000: /* CXNN */
         VX = rand() & (chip8->opcode & 0x00FF);
+        chip8->pc += 2;
+        break;
+    case 0xD000: /* DXYN */
+        for (int i = 0; i < (chip8->opcode & 0x000F); ++i) {
+            if ((CURRENT_PIXEL == 1) && ((CURRENT_PIXEL ^ chip8->memory[chip8->I + i]) == 0))
+                chip8->V[15] = 1;
+            CURRENT_PIXEL ^= chip8->memory[chip8->I + i];
+        }
         chip8->pc += 2;
         break;
     case 0xF000:
