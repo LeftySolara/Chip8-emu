@@ -134,6 +134,7 @@ void chip8_cycle(struct Chip8 *chip8)
         default: /* 0NNN */
             chip8->stack[chip8->sp++] = chip8->pc;
             chip8->pc = (chip8->opcode & 0x0FFF);
+            break;
         }
         break;
     case 0x1000: /* 1NNN */
