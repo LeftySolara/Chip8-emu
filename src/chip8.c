@@ -135,6 +135,7 @@ void chip8_cycle(struct Chip8 *chip8)
             chip8->stack[chip8->sp++] = chip8->pc;
             chip8->pc = (chip8->opcode & 0x0FFF);
         }
+        break;
     case 0x1000: /* 1NNN */
         chip8->pc = chip8->opcode & 0x0FFF;
         break;
@@ -210,6 +211,7 @@ void chip8_cycle(struct Chip8 *chip8)
             break;
         }
         chip8->pc += 2;
+        break;
     case 0x9000: /* 9XY0 */
         if (VX != VY)
             chip8->pc += 4;
@@ -250,6 +252,7 @@ void chip8_cycle(struct Chip8 *chip8)
                 chip8->pc += 2;
             break;
         }
+        break;
     case 0xF000:
         switch (chip8->opcode & 0x00FF) {
         case 0x0007: /* FX07 */
@@ -293,9 +296,11 @@ void chip8_cycle(struct Chip8 *chip8)
             chip8->pc += 2;
             break;
         }
+        break;
     default:
         printf("Unknown opcode: 0x%X\n", chip8->opcode);
         chip8->pc += 2;
+        break;
     }
 }
 
