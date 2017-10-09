@@ -64,10 +64,19 @@ void chip8_load_prog(struct Chip8 *chip8, const char *prog)
     unsigned char buffer[buffer_size];
 
     FILE *fp = fopen(prog, "rb");
-    fread(buffer, sizeof(unsigned char), buffer_size, fp);
+    fseek(fp, 0, SEEK_END);
+    long file_size = ftell(fp);
 
+    if (file_size > buffer_size) {
+        printf("File too large. Exiting...");
+        exit(4);
+    }
+
+    fseek(fp, 0, SEEK_SET);
+    fread(buffer, sizeof(unsigned char), buffer_size, fp);
     for (int i = 0; i < buffer_size; ++i)
         chip8->memory[i + 512] = buffer[i];
+    fclose(fp);
 }
 
 void chip8_cycle(struct Chip8 *chip8)
