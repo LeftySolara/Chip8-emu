@@ -165,7 +165,7 @@ void chip8_cycle(struct Chip8 *chip8)
         else
             chip8->pc += 2;
         break;
-    case 0x400: /* 4XNN */
+    case 0x4000: /* 4XNN */
         if (VX != (chip8->opcode & 0x00FF))
             chip8->pc += 4;
         else
@@ -218,6 +218,9 @@ void chip8_cycle(struct Chip8 *chip8)
         case 0x000E: /* 8XYE */
             chip8->V[15] = ((VX & 0xF000) == 1) ? 1 : 0;
             VX = VX << 1;
+            break;
+        default:
+            printf("Unknown opcode [0x8000]: 0x%X\n", chip8->opcode);
             break;
         }
         chip8->pc += 2;
@@ -304,6 +307,9 @@ void chip8_cycle(struct Chip8 *chip8)
             for (int i = 0; i <= (chip8->opcode & 0x0F00); ++i)
                 chip8->V[i] = chip8->memory[chip8->I++];
             chip8->pc += 2;
+            break;
+        default:
+            printf("Unknown opcode [0xF000]: 0x%X\n", chip8->opcode);
             break;
         }
         break;
