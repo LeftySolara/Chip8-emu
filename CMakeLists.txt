@@ -18,3 +18,9 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 file(GLOB_RECURSE SOURCE_FILES "src/*.c")
 add_executable(chip8 ${SOURCE_FILES})
+
+# SDL Config
+include(FindPkgConfig)
+pkg_search_module(SDL2 REQUIRED sdl2)
+include_directories(${SDL2_INCLUDE_DIRS})
+target_link_libraries(chip8 ${SDL2_LIBRARIES})
