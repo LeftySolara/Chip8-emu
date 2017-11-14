@@ -24,6 +24,7 @@ int main (int argc, char **argv)
     /* main loop flag */
     bool quit = false;
     while (!quit) {
+        chip8_cycle(chip8);
         while (SDL_PollEvent(&ui->event) != 0) {
             if (ui->event.type == SDL_QUIT)
                 quit = true;
@@ -37,6 +38,7 @@ int main (int argc, char **argv)
                 }
             }
         }
+        ui_draw(ui, chip8->gfx);
     }
 
     ui_free(ui);
